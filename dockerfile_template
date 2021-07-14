@@ -1,0 +1,28 @@
+FROM python:3.7.2-alpine3.8
+
+# Устанавливаем зависимости
+RUN apk add --update git
+
+# Просим Python не писать .pyc файлы
+ENV PYTHONDONTWRITEBYTECODE 1
+
+# Просим Python не буферизовать stdin/stdout
+ENV PYTHONUNBUFFERED 1
+
+# Задаем рабочую директорию
+WORKDIR /usr/src/my_app_directory
+
+# Копируем исходный код приложения
+COPY ./src /opt/app
+
+# Задаём значение по умолчанию для переменной
+ARG my_var=my_default_value
+
+# Настраиваем команду, которая должна быть запущена в контейнере во время его выполнения
+ENTRYPOINT ["python", "./app/my_script.py", "my_var"]
+
+# Открываем порты
+EXPOSE 8000
+
+# Создаём том для хранения данных
+VOLUME /my_volume
