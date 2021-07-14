@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgresql
+  labels:
+    app: postgre_base
+spec:
+  ports:
+    - port: 5432
+  selector:
+    app: postgre_base
+    tier: postgreSQL
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-claim
+  labels:
+    app: postgre_base
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgresql
+  labels:
+    app: postgre_base
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: 
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: postgre_base
+        tier: postgreSQL
+    spec:
+      containers:
+        - image: postgres:11.5-alpine
+          name: postgresql
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: 512m
+              memory: 500Mi
+          env:
+            - name: POSTGRES_USER
+              value: postgre_base
+            - name: POSTGRES_DB
+              value: postgre_basehq_production
+            - name: POSTGRES_PASSWORD
+              value: postgre_base
+          ports:
+            - containerPort: 5432
+              name: postgresql
+          volumeMounts:
+            - name: postgresql
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: postgresql
+          persistentVolumeClaim:
+            claimName: postgres-claim
