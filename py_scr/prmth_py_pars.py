@@ -16,7 +16,7 @@ def send_to_prometheus_gauge(prometheusServer, metricName, comment, exported_job
     prom_gauge = Gauge(metricName, comment, ['in','it','job'], registry=registry)
     prom_gauge.labels(INSTANCE_MONITOR, VEB_IT_SERVICE,job_subname).set(value)
     push_to_gateway(prometheusServer, job=job_subname, registry=registry)
-    time.sleep(0.1)
+    time.sleep(1)
 
 ### JOB
 print(datetime.now().strftime("[%d/%m/%Y %H:%M:%S] ") + "* * * " + MONITOR_JOB_NAME + " RUN " + "* * *")
